@@ -11,7 +11,16 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    fetch('/get_all_leitos')  // ajuste aqui o endpoint
+    let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
+
+    if (!sala) {
+      // Se não tem sala, não busca nada ou busca geral (você decide)
+      return;
+    }
+
+    fetch(`/get_all_leitos/${sala}/`)
+
+
       .then(response => response.json())
       .then(data => {
         const container = document.getElementById('leitos-container');
