@@ -198,10 +198,18 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              {% if sala_nome %}
+              <a class="nav-link" aria-current="page" href="/painel/{{ sala_nome }}/">Painel</a>
+              {% else %}
               <a class="nav-link" aria-current="page" href="{% url 'painel' %}">Painel</a>
+              {% endif %}
             </li>
             <li class="nav-item">
+              {% if sala_nome %}
+              <a class="nav-link" aria-current="page" href="/leitos/{{ sala_nome }}/">Leitos</a>
+              {% else %}
               <a class="nav-link" aria-current="page" href="{% url 'leitos' %}">Leitos</a>
+              {% endif %}
             </li>
           </ul>
 
@@ -216,9 +224,9 @@
                   {% endif %}
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="/painel/EMERGENCIA/">Emergência</a></li>
-                  <li><a class="dropdown-item" href="/painel/CLINICA MÉDICA/">Clínica Médica</a></li>
-                  <li><a class="dropdown-item" href="/painel/CENTRO CIRÚRGICO/">Centro Cirúrgico</a></li>
+                  {% for sigla, nome in salas %}
+                    <li><a class="dropdown-item" href="/leitos/{{ nome }}/">{{ nome|title }}</a></li>
+                  {% endfor %}
                 </ul>
               </li>
               

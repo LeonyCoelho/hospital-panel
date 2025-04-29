@@ -2,7 +2,7 @@ from django.db import models
 
 class Leito(models.Model):
     SALAS = [
-        ('EM', 'EMERGENCIA'),
+        ('AMA', 'SALA AMARELA'),
         ('CM', 'CLINICA MÉDICA'),
         ('CC', 'CENTRO CIRÚRGICO'),
     ]
@@ -11,6 +11,6 @@ class Leito(models.Model):
     boletim = models.IntegerField(max_length=9, null=True)
     internacao = models.DateTimeField(null=True)
     alta = models.DateTimeField(null=True)
-    sala = models.CharField(max_length=2, choices=SALAS)
+    sala = models.CharField(max_length=3, choices=SALAS)
     procedimento = models.TextField(blank=True, null=True)
     

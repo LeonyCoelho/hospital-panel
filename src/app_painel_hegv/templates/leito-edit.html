@@ -1,0 +1,114 @@
+{% extends 'base-leitos.html' %}
+{% block content %}
+{% load static %}
+<div class="container-fluid">
+    <div class="card mt-3">
+      <div class="card-header">
+        Editando Leito {{ leito.numero }}
+      </div>
+      <div class="card-body">
+
+  <form method="post" action="/api/update_leito/{{ leito.id }}/">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="numero" class="form-label">Número</label>
+      <input type="text" name="numero" class="form-control" value="{{ leito.numero }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="paciente" class="form-label">Paciente</label>
+      <input type="text" name="paciente" class="form-control" value="{{ leito.paciente }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="boletim" class="form-label">Boletim</label>
+      <input type="text" name="boletim" class="form-control" value="{{ leito.boletim }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="internacao" class="form-label">Data de Internação</label>
+      <input type="date" name="internacao" class="form-control" value="{{ leito.internacao|date:'Y-m-d' }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="alta" class="form-label">Previsão de Alta</label>
+      <input type="date" name="alta" class="form-control" value="{{ leito.alta|date:'Y-m-d' }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="sala" class="form-label">Sala</label>
+      <select name="sala" class="form-select">
+        {% for sigla, nome in leito.SALAS %}
+          <option value="{{ sigla }}" {% if leito.sala == sigla %}selected{% endif %}>{{ nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="procedimento" class="form-label">Procedimento</label>
+      <textarea name="procedimento" class="form-control">{{ leito.procedimento }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="/painel/" class="btn btn-secondary">Cancelar</a>
+  </form>
+
+      </div>
+
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.addEventListener('click', function (e) {
+        if (e.target.classList.contains('editar-leito-btn')) {
+          const leitoId = e.target.dataset.leitoId;
+    
+          fetch(`/api/get_leito/${leitoId}/`)
+            .then(res => res.json())
+            .then(leito => {
+              // Preencher os campos do modal
+              document.getElementById('leito-id').value = leito.id;
+              document.getElementById('leito-numero').value = leito.numero;
+              document.getElementById('leito-paciente').value = leito.paciente || '';
+              document.getElementById('leito-procedimento').value = leito.procedimento || '';
+              
+              // Mostrar o modal
+              const modal = new bootstrap.Modal(document.getElementById('editarLeitoModal'));
+              modal.show();
+            });
+        }
+      });
+    
+      document.getElementById('editarLeitoForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('leito-id').value;
+        const formData = new FormData(this);
+    
+        fetch(`/api/update_leito/${id}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCSRFToken(),  // função que pega o token do cookie
+          },
+          body: formData,
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Fecha o modal e atualiza a UI (ex: chamar populateTable de novo)
+              bootstrap.Modal.getInstance(document.getElementById('editarLeitoModal')).hide();
+              alert("Leito atualizado com sucesso!");
+              // populateTable(); // ou algo semelhante
+            } else {
+              alert("Erro ao salvar");
+            }
+          });
+      });
+    });
+    
+
+  </script>
+
+{% endblock %}

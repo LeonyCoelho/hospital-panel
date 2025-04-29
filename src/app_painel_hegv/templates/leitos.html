@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base-leitos.html' %}
 {% block content %}
 {% load static %}
 <div class="container-fluid">
@@ -35,7 +35,17 @@
   <script>
 
 document.addEventListener('DOMContentLoaded', function() {
-  fetch('/get_all_leitos')  // ajuste para o seu endpoint
+
+  let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
+
+  console.log(sala)
+
+  if (!sala) {
+    // Se não tem sala, não busca nada ou busca geral (você decide)
+    return;
+  }
+
+  fetch(`/get_all_leitos/${sala}/`)  // ajuste para o seu endpoint
     .then(response => response.json())
     .then(data => {
       const tbody = document.querySelector('#tabela-leitos tbody');
@@ -56,9 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <td>${leito.sala || '-'}</td>
           <td>${leito.procedimento || '-'}</td>
           <td>
-            <button class="btn btn-sm btn-primary" onclick="editarLeito(${leito.id})">
-              Editar
-            </button>
+            <td>
+              <a href="/leito/${leito.id}/editar/" class="btn btn-sm btn-primary">Editar</a>
+            </td>
           </td>
         `;
 
