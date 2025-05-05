@@ -4,10 +4,11 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('painel/', views.painel, name='painel'),            # sem sala
-    path('painel/<str:sala_nome>/', views.painel, name='painel_sala'),  # com sala
-    path('leitos', views.leitos, name='leitos'),
-    path('leitos/<str:sala_nome>/', views.leitos, name='leitos_sala'),  # com sala
-    path('leito/<int:id>/editar/', views.editar_leito_page, name='editar_leito_page'),
+    path('<str:sala_nome>/painel/', views.painel, name='painel_sala'),  # com sala
+    path('<str:sala_nome>/leitos', views.leitos, name='leitos'),
+    path('<str:sala_nome>/leitos/<str:sala_nome>/', views.leitos, name='leitos_sala'),  # com sala
+    path('<str:sala_nome>/leito/<int:id>/editar/', views.editar_leito_page, name='editar_leito_page'),
+    path('<str:sala_nome>/leito/novo/', views.novo_leito, name='novo_leito'),
 
 
     path('api/get_leito/<int:id>/', views.get_leito, name='get_leito'),

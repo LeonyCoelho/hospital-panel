@@ -10,7 +10,7 @@
   <body class="bg-secondary">
     <nav class="navbar navbar-expand-lg text-bg-light" data-bs-theme="light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
           <svg
              id="Camada_1"
@@ -199,14 +199,14 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               {% if sala_nome %}
-              <a class="nav-link" aria-current="page" href="/painel/{{ sala_nome }}/">Painel</a>
+              <a class="nav-link" aria-current="page" href="{{ sala_nome }}/painel/">Painel</a>
               {% else %}
               <a class="nav-link" aria-current="page" href="{% url 'painel' %}">Painel</a>
               {% endif %}
             </li>
             <li class="nav-item">
               {% if sala_nome %}
-              <a class="nav-link" aria-current="page" href="/leitos/{{ sala_nome }}/">Leitos</a>
+              <a class="nav-link" aria-current="page" href="{{ sala_nome }}/leito/">Leitos</a>
               {% else %}
               <a class="nav-link" aria-current="page" href="{% url 'leitos' %}">Leitos</a>
               {% endif %}
@@ -225,7 +225,7 @@
                 </a>
                 <ul class="dropdown-menu">
                   {% for sigla, nome in salas %}
-                    <li><a class="dropdown-item" href="/painel/{{ nome }}/">{{ nome|title }}</a></li>
+                    <li><a class="dropdown-item" href="{{ nome }}/painel/">{{ nome|title }}</a></li>
                   {% endfor %}
                 </ul>
               </li>
