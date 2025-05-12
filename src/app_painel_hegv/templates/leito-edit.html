@@ -58,59 +58,34 @@
       </div>
 
 
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          document.body.addEventListener('click', function (e) {
+            if (e.target.classList.contains('editar-leito-btn')) {
+              const leitoId = e.target.dataset.leitoId;
+        
+              fetch(`/api/get_leito/${leitoId}/`)
+                .then(res => res.json())
+                .then(leito => {
+                  // Preencher os campos do modal
+                  document.getElementById('leito-id').value = leito.id;
+                  document.getElementById('leito-numero').value = leito.numero;
+                  document.getElementById('leito-paciente').value = leito.paciente || '';
+                  document.getElementById('leito-procedimento').value = leito.procedimento || '';
+                  
+                  // Mostrar o modal
+                  const modal = new bootstrap.Modal(document.getElementById('editarLeitoModal'));
+                  modal.show();
+                });
+            }
+          });
+        });
+      </script>
+
+
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.body.addEventListener('click', function (e) {
-        if (e.target.classList.contains('editar-leito-btn')) {
-          const leitoId = e.target.dataset.leitoId;
-    
-          fetch(`/api/get_leito/${leitoId}/`)
-            .then(res => res.json())
-            .then(leito => {
-              // Preencher os campos do modal
-              document.getElementById('leito-id').value = leito.id;
-              document.getElementById('leito-numero').value = leito.numero;
-              document.getElementById('leito-paciente').value = leito.paciente || '';
-              document.getElementById('leito-procedimento').value = leito.procedimento || '';
-              
-              // Mostrar o modal
-              const modal = new bootstrap.Modal(document.getElementById('editarLeitoModal'));
-              modal.show();
-            });
-        }
-      });
-    
-      document.getElementById('editarLeitoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        
-        const id = document.getElementById('leito-id').value;
-        const formData = new FormData(this);
-    
-        fetch(`/api/update_leito/${id}/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCSRFToken(),  // função que pega o token do cookie
-          },
-          body: formData,
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              // Fecha o modal e atualiza a UI (ex: chamar populateTable de novo)
-              bootstrap.Modal.getInstance(document.getElementById('editarLeitoModal')).hide();
-              alert("Leito atualizado com sucesso!");
-              // populateTable(); // ou algo semelhante
-            } else {
-              alert("Erro ao salvar");
-            }
-          });
-      });
-    });
-    
 
-  </script>
 
 {% endblock %}

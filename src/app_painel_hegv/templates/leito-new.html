@@ -4,11 +4,11 @@
 <div class="container">
     <div class="card mt-3">
       <div class="card-header">
-        Editando Leito {{ leito.numero }}
+        Criar Leito {{ leito.numero }}
       </div>
       <div class="card-body">
 
-  <form method="post" action="/api/update_leito/{{ leito.id }}/">
+  <form method="post" action="/api/create_leito/">
     {% csrf_token %}
     <div class="row">
       <div class="col-2 mb-3">
@@ -82,35 +82,7 @@
             });
         }
       });
-    
-      document.getElementById('editarLeitoForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        
-        const id = document.getElementById('leito-id').value;
-        const formData = new FormData(this);
-    
-        fetch(`/api/update_leito/${id}/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCSRFToken(),  // função que pega o token do cookie
-          },
-          body: formData,
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              // Fecha o modal e atualiza a UI (ex: chamar populateTable de novo)
-              bootstrap.Modal.getInstance(document.getElementById('editarLeitoModal')).hide();
-              alert("Leito atualizado com sucesso!");
-              // populateTable(); // ou algo semelhante
-            } else {
-              alert("Erro ao salvar");
-            }
-          });
-      });
     });
-    
-
   </script>
 
 {% endblock %}

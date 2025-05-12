@@ -1,12 +1,25 @@
 {% extends 'base-painel.html' %}
 {% block content %}
 {% load static %}
+<style>
+  .painel-danger{
+    background-color : #f8d7da;
+    border-color : #f5c6cb;
+    color : #721c24
+  }
+
+  .painel-warning{
+    background-color : #fff3cd;
+    border-color : #f5c6cb;
+    color : #856404
+  }
+
+</style>
+
 <div class="container-fluid">
-    <div class="row">
-
-
-<div class="row" id="leitos-container">
-  <!-- Os cards serão adicionados aqui -->
+  <div class="row" id="leitos-container">
+    <!-- Os cards serão adicionados aqui -->
+  </div>
 </div>
 
 <script>
@@ -45,15 +58,16 @@
             const diffDias = (altaDate - hoje) / (1000 * 60 * 60 * 24);  // data futura - hoje
 
             if (diffDias === 0) {
-              borderClass = 'border-danger border-5';      // Alta hoje
+              borderClass = 'painel-danger';      // Alta hoje
             } else if (diffDias === 1) {
-              borderClass = 'border-warning border-5';     // Alta amanhã
+              borderClass = 'painel-warning';     // Alta amanhã
             }
           }
 
 
   
           card.innerHTML = `
+          <div class="col6">
             <div class="card ${borderClass} mt-3">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
@@ -78,6 +92,7 @@
                 <p class="mb-0"><strong>Procedimento:</strong> ${leito.procedimento || '-'}</p>
               </div>
             </div>
+            </div>
           `;
   
           container.appendChild(card);
@@ -93,11 +108,5 @@
   }
   
 </script>
-
-      
-
-
-    </div>
-  </div>
 
 {% endblock %}

@@ -5,6 +5,8 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 
+from django.contrib import messages
+
 
 def home(request, sala_nome=None):
     salas = Leito.SALAS  # lista de salas
@@ -33,9 +35,6 @@ def leitos(request, sala_nome=None):
     }
     return render(request,"leitos.html", context)
 
-def novo_leito(request):
-    return render(request, 'leito-new.html')
-
 def editar_leito_page(request, id):
     leito = get_object_or_404(Leito, id=id)
     return render(request, 'leito-edit.html', {'leito': leito})
@@ -48,7 +47,6 @@ def update_leito(request, id):
         leito.paciente = request.POST.get('paciente')
         leito.boletim = request.POST.get('boletim')
 
-        # Conversão segura das datas (padrão yyyy-mm-dd do input type="date")
         internacao_str = request.POST.get('internacao')
         alta_str = request.POST.get('alta')
         leito.internacao = datetime.strptime(internacao_str, '%Y-%m-%d') if internacao_str else None
@@ -58,25 +56,70 @@ def update_leito(request, id):
         leito.procedimento = request.POST.get('procedimento')
 
         leito.save()
-        return JsonResponse({'success': True})
+
+        # Redireciona após salvar
+        return redirect('/leitos')
     
     return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=400)
-
-@csrf_exempt  # Só se necessário. Prefira usar {% csrf_token %} no form e manter CSRF ON.
-def novo_leito_form(request):
+    
+def create_leito(request):
+    salas = Leito.SALAS
+    context = {
+        'salas': salas,
+    }
     if request.method == 'POST':
-        leito = Leito(
-            numero=request.POST.get('numero'),
-            paciente=request.POST.get('paciente'),
-            boletim=request.POST.get('boletim'),
-            internacao=request.POST.get('internacao'),
-            alta=request.POST.get('alta'),
-            sala=request.POST.get('sala'),
-            procedimento=request.POST.get('procedimento'),
+        numero = request.POST.get('numero')
+        paciente = request.POST.get('paciente')
+        boletim = request.POST.get('boletim')
+
+        internacao_str = request.POST.get('internacao')
+        alta_str = request.POST.get('alta')
+        internacao = datetime.strptime(internacao_str, '%Y-%m-%d') if internacao_str else None
+        alta = datetime.strptime(alta_str, '%Y-%m-%d') if alta_str else None
+
+        sala = request.POST.get('sala')
+        procedimento = request.POST.get('procedimento')
+
+        Leito.objects.create(
+            numero=numero,
+            paciente=paciente,
+            boletim=boletim,
+            internacao=internacao,
+            alta=alta,
+            sala=sala,
+            procedimento=procedimento,
         )
-        leito.save()
-        return redirect('/painel/')  # ou outro destino
-    return render(request, 'leito-new.html')
+
+        messages.success(request, 'Leito criado com sucesso!')
+        return redirect('/leitos')
+
+    return render(request, 'leito-new.html', context)
+
+
+# def novo_leito(request):
+#     if request.method == 'POST':
+#         numero = request.POST.get('numero')
+#         paciente = request.POST.get('paciente')
+#         boletim = request.POST.get('boletim')
+#         internacao = request.POST.get('internacao')
+#         alta = request.POST.get('alta')
+#         sala = request.POST.get('sala')
+#         procedimento = request.POST.get('procedimento')
+
+#         Leito.objects.create(
+#             numero=numero,
+#             paciente=paciente,
+#             boletim=boletim,
+#             internacao=internacao or None,
+#             alta=alta or None,
+#             sala=sala,
+#             procedimento=procedimento,
+#         )
+
+#         messages.success(request, 'Leito criado com sucesso!')
+#         return redirect('/leitos/novo/')  # ou para onde quiser retornar
+
+#     return render(request, 'leito-new.html', {'salas': Leito.SALAS})
 
 @require_GET
 def get_all_leitos(request, sala_nome):
