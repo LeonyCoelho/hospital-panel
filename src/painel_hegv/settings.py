@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,11 @@ SECRET_KEY = 'django-insecure-7vw)g_lp$zjlthy8+1_=e5#*kpo8$^+h)fgqzxutk0s#+#6$8i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['10.10.184.23', '10.10.184.23:84']
+
+CSRF_TRUSTED_ORIGINS = ['http://10.10.184.23:84']
 
 
 # Application definition
@@ -112,13 +117,24 @@ USE_I18N = True
 USE_L10N = True  # Adiciona isso pra garantir formatação local
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app_painel_hegv/static'),
+]
+
+STATICFILES = [
+    # outros arquivos estáticos
+    'bootstrap.min.css',
+    'style.css',
+    'style-light.css'
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+

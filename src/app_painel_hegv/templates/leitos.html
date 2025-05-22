@@ -3,29 +3,17 @@
 {% load static %}
 <div class="container-fluid">
     <div class="card mt-3">
-      <div class="card-header">
-        Leitos
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Leitos</span>
+        <a type="button" class="btn btn-secondary btn-sm" href="/api/create_leito/">Novo</a>
       </div>
+      
       <div class="card-body">
-        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-          <a type="button" class="btn btn-secondary" href="/api/create_leito/">Novo</a>
-          <button type="button" class="btn btn-secondary">2</button>
-        
-          <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown
-            </button>
-            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-              <a class="dropdown-item" href="#">Dropdown link</a>
-              <a class="dropdown-item" href="#">Dropdown link</a>
-            </div>
-          </div>
-        </div>
       <div class="table-responsive">
         <table class="table table-hover" id="tabela-leitos">
           <thead class="table">
             <tr>
-              <th scope="col">#</th>
+              <th scope="col">Leito</th>
               <th scope="col">Paciente</th>
               <th scope="col">Boletim</th>
               <th scope="col">Internação</th>
@@ -41,72 +29,142 @@
         </table>
       </div>
       </div>
-
-
     </div>
   </div>
 
+  <!-- Modal de Confirmação de Exclusão -->
+  <div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-labelledby="modalConfirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConfirmDeleteLabel">Confirmar Exclusão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir o leito <strong id="modalLeitoNumero"></strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <form id="formDeleteLeito" method="post">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Sim, excluir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- RENDER TABLE SCRIPT =================================================== -->
   <script>
 
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
 
-  let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
+      let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
 
-  console.log(sala)
+      console.log(sala)
 
-  if (!sala) {
-    // Se não tem sala, não busca nada ou busca geral (você decide)
-    return;
-  }
+      if (!sala) {
+        // Se não tem sala, não busca nada ou busca geral (você decide)
+        return;
+      }
 
-  fetch(`/get_all_leitos/${sala}/`)  // ajuste para o seu endpoint
-    .then(response => response.json())
-    .then(data => {
-      const tbody = document.querySelector('#tabela-leitos tbody');
-      const leitos = data.leitos;
+      fetch(`/get_all_leitos/${sala}/`)  // ajuste para o seu endpoint
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector('#tabela-leitos tbody');
+          const leitos = data.leitos;
 
-      // Ordenar os leitos pelo campo 'numero'
-      leitos.sort((a, b) => a.numero - b.numero);
+          // Ordenar os leitos pelo campo 'numero'
+          leitos.sort((a, b) => a.numero - b.numero);
 
-      leitos.forEach(leito => {
-        const tr = document.createElement('tr');
+          leitos.forEach(leito => {
+            const tr = document.createElement('tr');
 
-        tr.innerHTML = `
-          <th scope="row">${leito.numero.toString().padStart(2, '0')}</th>
-          <td>${leito.paciente || 'Sem Paciente'}</td>
-          <td>${leito.boletim || '-'}</td>
-          <td>${formatarData(leito.internacao)}</td>
-          <td>${formatarData(leito.alta)}</td>
-          <td>${leito.sala || '-'}</td>
-          <td>${leito.procedimento || '-'}</td>
-          <td>
-            <td>
-              <a href="/leito/${leito.id}/editar/" class="btn btn-sm btn-primary">Editar</a>
-            </td>
-          </td>
-        `;
+            tr.innerHTML = `
+              <th scope="row">${leito.numero.toString().padStart(2, '0')}</th>
+              <td>${leito.paciente || 'Sem Paciente'}</td>
+              <td>${leito.boletim || '-'}</td>
+              <td>${formatarData(leito.internacao)}</td>
+              <td>${formatarData(leito.alta)}</td>
+              <td>${leito.sala || '-'}</td>
+              <td>${leito.procedimento || '-'}</td>
+              <td>
+                <td>
+                  <a href="/leito/${leito.id}/editar/" class="btn btn-sm btn-primary">Editar</a>
+                  <button class="btn btn-danger btn-delete-leito btn-sm" 
+                          data-leito-id="${leito.id}"
+                          data-leito-numero="${leito.numero}">
+                    Deletar
+                  </button>
+                </td>
+              </td>
+            `;
 
-        tbody.appendChild(tr);
-      });
-    })
-    .catch(error => console.error('Erro ao buscar leitos:', error));
-});
+            tbody.appendChild(tr);
+          });
+          tbody.querySelectorAll('.btn-delete-leito').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const leitoId = this.dataset.leitoId;
+            const leitoNumero = this.dataset.leitoNumero;
 
-// Mesma função pra formatar datas
-function formatarData(data) {
-  if (!data) return '-';
-  const d = new Date(data);
-  return d.toLocaleDateString('pt-BR');
-}
+            // Atualiza o texto no modal
+            document.getElementById('modalLeitoNumero').textContent = leitoNumero;
 
-// Função chamada ao clicar no botão editar
-function editarLeito(id) {
-  alert(`Editar leito ID: ${id}`);
-  // Aqui você pode redirecionar para uma página de edição
-  // Exemplo: window.location.href = `/leitos/editar/${id}/`
-}
+            // Define a action do formulário
+            const form = document.getElementById('formDeleteLeito');
+            form.action = `/leito/${leitoId}/deletar/`;
+
+            // Abre o modal
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmDelete'));
+            modal.show();
+          });
+        });
+
+        })
+        .catch(error => console.error('Erro ao buscar leitos:', error));
+    });
+
+    // Mesma função pra formatar datas
+    function formatarData(data) {
+      if (!data) return '-';
+      const d = new Date(data);
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    // Função chamada ao clicar no botão editar
+    function editarLeito(id) {
+      alert(`Editar leito ID: ${id}`);
+      // Aqui você pode redirecionar para uma página de edição
+      // Exemplo: window.location.href = `/leitos/editar/${id}/`
+    }
 
 
   </script>
 
+  <!-- DELETE LEITO SCRIPT ===================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Seleciona todos os botões de delete
+      document.querySelectorAll('.btn-delete-leito').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          // Obtém os dados do leito do botão
+          const leitoId = this.dataset.leitoId;
+          const leitoNumero = this.dataset.leitoNumero;
+          
+          // Atualiza o texto dentro do modal
+          document.getElementById('modalLeitoNumero').textContent = leitoNumero;
+          
+          // Define a action do formulário de deletar
+          const form = document.getElementById('formDeleteLeito');
+          form.action = `/leito/${leitoId}/deletar/`; // Certifique-se de que essa URL corresponde à sua URL de deleção
+          
+          // Exibe o modal
+          const modal = new bootstrap.Modal(document.getElementById('modalConfirmDelete'));
+          modal.show();
+        });
+      });
+    });
+  </script>
+  
 {% endblock %}

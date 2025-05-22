@@ -40,7 +40,7 @@
       <div class="col mb-3">
         <label for="sala" class="form-label">Sala</label>
         <select name="sala" class="form-select">
-          {% for sigla, nome in leito.SALAS %}
+          {% for sigla, nome in salas %}
             <option value="{{ sigla }}" {% if leito.sala == sigla %}selected{% endif %}>{{ nome }}</option>
           {% endfor %}
         </select>
@@ -55,6 +55,7 @@
     <a href="/painel/" class="btn btn-secondary">Cancelar</a>
   </form>
 
+  
       </div>
 
 
@@ -84,5 +85,7 @@
       });
     });
   </script>
+
+  
 
 {% endblock %}

@@ -10,7 +10,7 @@
   <body class="bg-secondary">
     <nav class="navbar navbar-expand-lg text-bg-light" data-bs-theme="light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
           <svg
              id="Camada_1"
@@ -200,26 +200,6 @@
 
           </ul>
 
-          <div class="position-absolute start-50 translate-middle-x z-3">
-            <ul class="navbar-nav">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% if sala_nome %}
-                    <strong>{{ sala_nome }}</strong>
-                  {% else %}
-                    <strong>Selecionar Sala</strong>
-                  {% endif %}
-                </a>
-                <ul class="dropdown-menu">
-                  {% for sigla, nome in salas %}
-                    <li><a class="dropdown-item" href="/painel/{{ nome }}/">{{ nome|title }}</a></li>
-                  {% endfor %}
-                </ul>
-              </li>
-              
-            </ul>
-          </div>
-
           <div class="d-flex">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item dropdown">
@@ -236,10 +216,12 @@
         </div>
       </div>
     </nav>
+    <main class="bg-secondary d-flex justify-content-center align-items-center" style="height: 90vh;">
 
-    {% block content %}
-    {% endblock %}
-    
+      {% block content %}
+      {% endblock %}
+    </main>
+      
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
   </body>
 </html>

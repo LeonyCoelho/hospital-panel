@@ -1,0 +1,55 @@
+{% extends 'base-cc.html' %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      Salas do Centro Cirúrgico
+    </div>
+    <div class="card-body">
+      <table class="table table-bordered" id="tabela-salascc">
+        <thead class="table-light">
+          <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Especialidade</th>
+            <th>Hora de Início</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Conteúdo será injetado via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function carregarTabelaSalasCC() {
+    fetch('/api/salas-cc/')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#tabela-salascc tbody');
+        tbody.innerHTML = '';
+
+        data.salascc.forEach(sala => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td>Sala ${sala.nome}</td>
+            <td>${sala.status_display}</td>
+            <td>${sala.especialidade || '-'}</td>
+            <td>${sala.hora_inicio || '-'}</td>
+            <td>
+              <a href="/salascc/${sala.nome}/editar/" class="btn btn-sm btn-primary">Editar</a>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', carregarTabelaSalasCC);
+</script>
+{% endblock %}

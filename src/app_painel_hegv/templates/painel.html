@@ -57,7 +57,7 @@
 
             const diffDias = (altaDate - hoje) / (1000 * 60 * 60 * 24);  // data futura - hoje
 
-            if (diffDias === 0) {
+            if (diffDias <= 0) {
               borderClass = 'painel-danger';      // Alta hoje
             } else if (diffDias === 1) {
               borderClass = 'painel-warning';     // Alta amanhã

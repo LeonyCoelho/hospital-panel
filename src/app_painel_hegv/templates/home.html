@@ -1,86 +1,30 @@
 {% extends 'base-.html' %}
 {% block content %}
 {% load static %}
-<div class="container-fluid">
+<body class="bg-light d-flex justify-content-center align-items-center" style="height: 100vh;">
+  <div class="container" style="width: 100%">
     <div class="row">
-
-
-<div class="row" id="leitos-container">
-  <!-- Os cards serão adicionados aqui -->
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
-
-    if (!sala) {
-      // Se não tem sala, não busca nada ou busca geral (você decide)
-      return;
-    }
-
-    fetch(`/get_all_leitos/${sala}/`)
-
-
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById('leitos-container');
-        const leitos = data.leitos;
-  
-        // Ordenar os leitos pelo campo 'numero'
-        leitos.sort((a, b) => a.numero - b.numero);
-  
-        leitos.forEach(leito => {
-          const card = document.createElement('div');
-          card.className = 'col-2';
-  
-          card.innerHTML = `
-            <div class="card mt-3">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                  <img src="{% static 'bed.svg' %}" height="45px" class="me-3">
-                  <strong>Leito ${leito.numero.toString().padStart(2, '0')}</strong>
-                </div>
-                <span class="badge rounded-pill ${leito.internacao ? 'bg-success' : 'bg-secondary'}">
-                  ${leito.internacao ? 'OK' : 'Livre'}
-                </span>
-              </div>
-  
-              <div class="card-body">
-                <p class="mb-1">
-                  <svg class="me-2" width="18px" height="18px" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 7C9.65685 7 11 5.65685 11 4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4C5 5.65685 6.34315 7 8 7Z" fill="#000"/>
-                    <path d="M14 12C14 10.3431 12.6569 9 11 9H5C3.34315 9 2 10.3431 2 12V15H14V12Z" fill="#000"/>
-                  </svg>
-                  <strong>${leito.paciente || 'Sem Paciente'}</strong>
-                </p>
-                <p class="mb-1"><strong>Boletim:</strong> ${leito.boletim || '-'}</p>
-                <p class="mb-1"><strong>Data de Internação:</strong> ${formatarData(leito.internacao)}</p>
-                <p class="mb-1"><strong>Previsão de Alta:</strong> ${formatarData(leito.alta)}</p>
-                <p class="mb-1"><strong>Clínica:</strong> ${leito.sala || '-'}</p>
-                <hr>
-                <p class="mb-0"><strong>Procedimento:</strong> ${leito.procedimento || '-'}</p>
-              </div>
+      {% for sigla, nome in salas %}
+      <div class="col-6">
+        <a href="/painel/{{ nome }}/" class="text-decoration-none text-dark">
+          <div class="card mt-3">
+            <div class="card-body text-center">
+              <h1 class="mt-5 mb-5">{{ nome|title }}</h1>
             </div>
-          `;
-  
-          container.appendChild(card);
-        });
-      })
-      .catch(error => console.error('Erro ao buscar leitos:', error));
-  });
-  
-  function formatarData(data) {
-    if (!data) return '-';
-    const d = new Date(data);
-    return d.toLocaleDateString('pt-BR');
-  }
-  
-</script>
-
-      
-
-
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+      <div class="col-6">
+        <a href="/centro-cirurgico/" class="text-decoration-none text-dark">
+          <div class="card mt-3">
+            <div class="card-body text-center">
+              <h1 class="mt-5 mb-5">Centro Cirúrgico</h1>  
+            </div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
-
+</body>
 {% endblock %}

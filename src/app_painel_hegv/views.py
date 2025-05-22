@@ -1,11 +1,35 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Leito
+from .models import Leito, SalaCirurgica
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('')  # ou pra onde quiser após login
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('')  # Redireciona após login
+        else:
+            return render(request, 'login.html', {'error': 'Usuário ou senha inválidos'})
+
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('/login/')
 
 
 def home(request, sala_nome=None):
@@ -26,6 +50,7 @@ def painel(request, sala_nome=None):
     }
     return render(request, "painel.html", context)
 
+@login_required(login_url='/login/')
 def leitos(request, sala_nome=None):
     salas = Leito.SALAS  # lista de salas
 
@@ -35,10 +60,12 @@ def leitos(request, sala_nome=None):
     }
     return render(request,"leitos.html", context)
 
+@login_required(login_url='/login/')
 def editar_leito_page(request, id):
     leito = get_object_or_404(Leito, id=id)
     return render(request, 'leito-edit.html', {'leito': leito})
 
+@login_required(login_url='/login/')
 def update_leito(request, id):
     if request.method == 'POST':
         leito = get_object_or_404(Leito, id=id)
@@ -62,6 +89,7 @@ def update_leito(request, id):
     
     return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=400)
     
+@login_required(login_url='/login/')
 def create_leito(request):
     salas = Leito.SALAS
     context = {
@@ -95,32 +123,49 @@ def create_leito(request):
 
     return render(request, 'leito-new.html', context)
 
+@login_required(login_url='/login/')
+def deletar_leito(request, id):
+    leito = get_object_or_404(Leito, id=id)
 
-# def novo_leito(request):
-#     if request.method == 'POST':
-#         numero = request.POST.get('numero')
-#         paciente = request.POST.get('paciente')
-#         boletim = request.POST.get('boletim')
-#         internacao = request.POST.get('internacao')
-#         alta = request.POST.get('alta')
-#         sala = request.POST.get('sala')
-#         procedimento = request.POST.get('procedimento')
+    if request.method == 'POST':
+        leito.delete()
+        messages.success(request, 'Leito deletado com sucesso!')
+        return redirect('/leitos')  # redireciona para a listagem dos leitos
+    
+    # Se for GET, pode opcionalmente renderizar uma página ou simplesmente redirecionar
+    return redirect('/leitos')
 
-#         Leito.objects.create(
-#             numero=numero,
-#             paciente=paciente,
-#             boletim=boletim,
-#             internacao=internacao or None,
-#             alta=alta or None,
-#             sala=sala,
-#             procedimento=procedimento,
-#         )
+def centro_cirurgico_view(request):
+    salascc = SalaCirurgica.objects.all().order_by('nome')
+    salas = Leito.SALAS  # lista de salas
 
-#         messages.success(request, 'Leito criado com sucesso!')
-#         return redirect('/leitos/novo/')  # ou para onde quiser retornar
+    return render(request, 'centro-cirurgico.html', {'salascc': salascc, 'salas': salas})
 
-#     return render(request, 'leito-new.html', {'salas': Leito.SALAS})
+@login_required(login_url='/login/')
+def salascc(request):
+    salascc = SalaCirurgica.objects.all().order_by('nome')
+    salas = Leito.SALAS  # lista de salas
 
+    return render(request, 'salascc.html', {'salascc': salascc, 'salas': salas})
+
+@login_required(login_url='/login/')
+def editar_sala_cc(request, nome):
+    sala = get_object_or_404(SalaCirurgica, nome=nome)
+
+    if request.method == 'POST':
+        sala.status = request.POST.get('status')
+        sala.especialidade = request.POST.get('especialidade')
+        hora_inicio_str = request.POST.get('hora_inicio')
+        sala.hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time() if hora_inicio_str else None
+        sala.save()
+        return redirect('salascc')
+
+    return render(request, 'editar-sala.html', {'sala': sala})
+
+
+
+
+# GET API =======================================
 @require_GET
 def get_all_leitos(request, sala_nome):
     # Converte o nome recebido pra caixa alta (pra evitar erro de digitação)
@@ -152,3 +197,16 @@ def get_leito(request, id):
         "paciente": leito.paciente,
         "procedimento": leito.procedimento,
     })
+
+def api_salas_cc(request):
+    salas = SalaCirurgica.objects.all().order_by('nome')
+    data = []
+    for sala in salas:
+        data.append({
+            'nome': sala.nome,
+            'status': sala.status,
+            'status_display': sala.get_status_display(),
+            'hora_inicio': sala.hora_inicio.strftime('%H:%M:%S') if sala.hora_inicio else None,
+            'especialidade': sala.especialidade,
+        })
+    return JsonResponse({'salascc': data})

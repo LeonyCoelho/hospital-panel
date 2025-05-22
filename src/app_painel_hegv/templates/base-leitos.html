@@ -10,7 +10,7 @@
   <body class="bg-secondary">
     <nav class="navbar navbar-expand-lg text-bg-light" data-bs-theme="light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
           <?xml version="1.0" encoding="UTF-8" standalone="no"?>
           <svg
              id="Camada_1"
@@ -227,6 +227,7 @@
                   {% for sigla, nome in salas %}
                     <li><a class="dropdown-item" href="/leitos/{{ nome }}/">{{ nome|title }}</a></li>
                   {% endfor %}
+                  <li><a class="dropdown-item" href="/centro-cirurgico/">Centro Cirúrgico</a></li>
                 </ul>
               </li>
               

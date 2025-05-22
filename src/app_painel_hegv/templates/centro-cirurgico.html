@@ -1,0 +1,103 @@
+{% extends 'base-cc.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mt-4" id="grid-salas">
+    <!-- Cards serão inseridos aqui via JS -->
+  </div>
+</div>
+
+<script>
+  function carregarSalasCC() {
+    fetch('/api/salas-cc/')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('grid-salas');
+        container.innerHTML = '';
+
+        data.salascc.forEach(sala => {
+          const card = document.createElement('div');
+          card.className = 'col-md-3';
+
+          let bgClass = 'bg-success-subtle text-dark'; // padrão
+
+          if (sala.status === 'cirurgia') {
+            bgClass = 'bg-danger-subtle text-dark';
+          } else if (sala.status === 'higienizacao') {
+            bgClass = 'bg-warning-subtle text-dark';
+          } else if (sala.status === 'vazia') {
+            bgClass = 'bg-light text-dark';
+          }
+
+          // Card especial para vazio ou higienização
+          if (sala.status === 'vazia' || sala.status === 'higienizacao') {
+            card.innerHTML = `
+              <div class="card ${bgClass} text-center mb-4" style="height: 400px;">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center" style="height: 150px;">
+                  <h5 class="mb-2">Sala ${sala.nome}</h5>
+                  <h2 class="fw-bold">${sala.status_display}</h2>
+                </div>
+              </div>
+            `;
+          } else {
+            // Card completo para salas em cirurgia
+            card.innerHTML = `
+              <div class="card ${bgClass} mb-4" style="height: 400px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <strong><h3 class="mt-2">Sala ${sala.nome}</h3></strong>
+                  <span class="badge bg-${statusCor(sala.status)}">${sala.status_display}</span>
+                </div>
+                <div class="card-body">
+                  <p><strong>Especialidade:</strong></p><p class="fs-2 lh-1">${sala.especialidade || '-'}</p>
+                  <p><strong>Início:</strong></p><p class="fs-2 lh-1">${sala.hora_inicio || '-'}</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    
+                    ${sala.status === 'cirurgia' && sala.hora_inicio ?
+                      `<p><strong>Tempo de Cirurgia:</strong></p> <h1><span class="timer" data-inicio="${sala.hora_inicio}"></span></h1>` : ''}
+                </div>
+              </div>
+            `;
+          }
+
+          container.appendChild(card);
+        });
+
+        iniciarTimers();
+      });
+  }
+
+  function statusCor(status) {
+    if (status === 'cirurgia') return 'danger';
+    if (status === 'higienizacao') return 'warning';
+    return 'secondary';
+  }
+
+  function iniciarTimers() {
+    document.querySelectorAll('.timer').forEach(span => {
+      const horaInicioStr = span.dataset.inicio;
+      if (!horaInicioStr) return;
+
+      const partes = horaInicioStr.split(':');
+      const horaInicio = new Date();
+      horaInicio.setHours(parseInt(partes[0]), parseInt(partes[1]), parseInt(partes[2]), 0);
+
+      function atualizar() {
+        const agora = new Date();
+        const diffMs = agora - horaInicio;
+        if (diffMs < 0) return;
+
+        const horas = Math.floor(diffMs / 3600000);
+        const minutos = Math.floor((diffMs % 3600000) / 60000);
+        const segundos = Math.floor((diffMs % 60000) / 1000);
+
+        span.textContent = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+      }
+
+      atualizar();
+      setInterval(atualizar, 1000);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', carregarSalasCC);
+</script>
+{% endblock %}
