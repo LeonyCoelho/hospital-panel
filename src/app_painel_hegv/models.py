@@ -24,7 +24,7 @@ class SalaCirurgica(models.Model):
     ]
 
     nome = models.CharField(max_length=20, unique=True)  # Ex: SALA 1, SALA 2, etc
-    hora_inicio = models.TimeField(null=True, blank=True)
+    hora_inicio = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='vazia')
     especialidade = models.CharField(max_length=100, blank=True, null=True)  # livre, pode adaptar depois
 

@@ -8,7 +8,7 @@
       </div>
       <div class="card-body">
 
-  <form method="post" action="/api/update_leito/{{ leito.id }}/">
+  <form method="post" action="/api/update_leito/{{sala_nome}}/{{ leito.id }}/">
     {% csrf_token %}
     <div class="row">
       <div class="col-2 mb-3">

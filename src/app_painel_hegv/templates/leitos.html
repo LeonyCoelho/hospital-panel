@@ -5,7 +5,7 @@
     <div class="card mt-3">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Leitos</span>
-        <a type="button" class="btn btn-secondary btn-sm" href="/api/create_leito/">Novo</a>
+        <a type="button" class="btn btn-secondary btn-sm" href="/leito/{{sala_nome}}/create_leito/">Novo</a>
       </div>
       
       <div class="card-body">
@@ -59,7 +59,7 @@
   <script>
 
     document.addEventListener('DOMContentLoaded', function() {
-
+      let sala_nome = "{{ sala_nome|urlencode }}";
       let sala = "{{ sala_nome|urlencode }}";  // Pega o nome da sala que veio da view
 
       console.log(sala)
@@ -91,7 +91,7 @@
               <td>${leito.procedimento || '-'}</td>
               <td>
                 <td>
-                  <a href="/leito/${leito.id}/editar/" class="btn btn-sm btn-primary">Editar</a>
+                  <a href="/leito/${sala_nome}/${leito.id}/editar/" class="btn btn-sm btn-primary">Editar</a>
                   <button class="btn btn-danger btn-delete-leito btn-sm" 
                           data-leito-id="${leito.id}"
                           data-leito-numero="${leito.numero}">
@@ -113,7 +113,7 @@
 
             // Define a action do formulário
             const form = document.getElementById('formDeleteLeito');
-            form.action = `/leito/${leitoId}/deletar/`;
+            form.action = `/leito/${sala_nome}/${leitoId}/deletar/`;
 
             // Abre o modal
             const modal = new bootstrap.Modal(document.getElementById('modalConfirmDelete'));
@@ -144,6 +144,8 @@
 
   <!-- DELETE LEITO SCRIPT ===================================================== -->
   <script>
+    let sala_nome = "{{ sala_nome|urlencode }}";
+
     document.addEventListener('DOMContentLoaded', function () {
       // Seleciona todos os botões de delete
       document.querySelectorAll('.btn-delete-leito').forEach(function (btn) {
@@ -157,7 +159,7 @@
           
           // Define a action do formulário de deletar
           const form = document.getElementById('formDeleteLeito');
-          form.action = `/leito/${leitoId}/deletar/`; // Certifique-se de que essa URL corresponde à sua URL de deleção
+          form.action = `/leito/${sala_nome}/${leitoId}/deletar/`; // Certifique-se de que essa URL corresponde à sua URL de deleção
           
           // Exibe o modal
           const modal = new bootstrap.Modal(document.getElementById('modalConfirmDelete'));
