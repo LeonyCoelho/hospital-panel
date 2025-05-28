@@ -1,0 +1,45 @@
+{% extends 'base-leitos.html' %}
+{% block content %}
+{% load custom_tags %}
+
+<div class="container">
+    <div class="card mt-3">
+        <div class="card-header">
+            Configuração de Cores por Sala
+        </div>
+        <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <div class="row">
+                {% for sigla, nome in salas %}
+                  <div class="col-md-4">
+                    <div class="card mb-4">
+                      <div class="card-header">
+                        <h5 class="mb-0">{{ nome }}</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="mb-3">
+                          <label class="form-label">Horas até <span class="badge bg-success">STATUS</span> → <span class="badge bg-warning">STATUS</span></label>
+                          <input type="number" class="form-control" name="warning_{{ sigla }}" 
+            value="{{ configs|get:sigla|attr:'horas_warning'|default:24 }}" min="0">
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Horas até <span class="badge bg-warning">STATUS</span> → <span class="badge bg-danger">STATUS</span></label>
+                          <input type="number" class="form-control" name="danger_{{ sigla }}" 
+            value="{{ configs|get:sigla|attr:'horas_danger'|default:48 }}" min="0">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-success">Salvar Configurações</button>
+                <a href="/painel/" class="btn btn-secondary">Voltar</a>
+              </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

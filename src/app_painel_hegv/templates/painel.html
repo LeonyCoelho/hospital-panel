@@ -51,18 +51,25 @@
 
           let borderClass = '';
 
-          if (leito.alta) {
-            const altaDate = new Date(leito.alta);
-            altaDate.setHours(0, 0, 0, 0);  // também zera hora
+          if (leito.internacao) {
+            const internacao = new Date(leito.internacao);
+            const agora = new Date();
 
-            const diffDias = (altaDate - hoje) / (1000 * 60 * 60 * 24);  // data futura - hoje
+            const diffMs = agora - internacao;
+            const diffHoras = diffMs / (1000 * 60 * 60);
 
-            if (diffDias <= 0) {
-              borderClass = 'painel-danger';      // Alta hoje
-            } else if (diffDias === 1) {
-              borderClass = 'painel-warning';     // Alta amanhã
+            const warning = data.config.horas_warning;
+            const danger = data.config.horas_danger;
+
+            if (diffHoras < warning) {
+              borderClass = 'text-bg-success';
+            } else if (diffHoras >= warning && diffHoras < danger) {
+              borderClass = 'text-bg-warning';
+            } else if (diffHoras >= danger) {
+              borderClass = 'text-bg-danger';
             }
           }
+
 
 
   

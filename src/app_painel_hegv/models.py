@@ -1,6 +1,18 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
 
+class ConfiguracaoSala(models.Model):
+    sala = models.CharField(max_length=3, choices=[
+        ('AMA', 'SALA AMARELA'),
+        ('MIS', 'SALA VERDE MISTA'),
+        ('CIR', 'CLINICA CIRÚRGICA'),
+    ], unique=True)
+
+    horas_warning = models.IntegerField(default=24, help_text="Horas para passar de success para warning")
+    horas_danger = models.IntegerField(default=48, help_text="Horas para passar de warning para danger")
+
+    def __str__(self):
+        return f"Config {self.get_sala_display()}"
 
 class Leito(models.Model):
     SALAS = [
@@ -8,9 +20,9 @@ class Leito(models.Model):
         ('MIS', 'SALA VERDE MISTA'),
         ('CIR', 'CLINICA CIRÚRGICA'),
     ]
-    numero = models.IntegerField(validators=[MaxValueValidator(999)],unique=True)
+    numero = models.IntegerField(validators=[MaxValueValidator(999999)],unique=True)
     paciente = models.CharField(max_length=255, null=True)
-    boletim = models.IntegerField(validators=[MaxValueValidator(999)], unique=True, null=True)
+    boletim = models.IntegerField(validators=[MaxValueValidator(999999)], unique=True, null=True)
     internacao = models.DateTimeField(null=True)
     alta = models.DateTimeField(null=True)
     sala = models.CharField(max_length=3, choices=SALAS)
@@ -18,7 +30,7 @@ class Leito(models.Model):
     
 class SalaCirurgica(models.Model):
     STATUS_CHOICES = [
-        ('vazia', 'Vazia'),
+        ('disponivel', 'Disponível'),
         ('cirurgia', 'Em Cirurgia'),
         ('higienizacao', 'Em Higienização'),
     ]

@@ -18,6 +18,7 @@ urlpatterns = [
     path('centro-cirurgico/', views.centro_cirurgico_view, name='centro_cirurgico'),
     path('salascc/', views.salascc, name='salascc'),
     path('salascc/<str:nome>/editar/', views.editar_sala_cc, name='editar_sala_cc'),  # exemplo
+    path('config-salas/', views.config_salas, name='config_salas'),
 
 
     path('api/update_leito/<str:sala_nome>/<int:id>/', views.update_leito, name='update_leito'),

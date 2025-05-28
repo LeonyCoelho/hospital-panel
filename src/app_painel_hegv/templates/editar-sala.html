@@ -15,7 +15,7 @@
         <div class="mb-3">
           <label class="form-label">Status</label>
           <select name="status" class="form-select">
-            <option value="vazia" {% if sala.status == 'vazia' %}selected{% endif %}>Vazia</option>
+            <option value="disponivel" {% if sala.status == 'disponivel' %}selected{% endif %}>Disponível</option>
             <option value="cirurgia" {% if sala.status == 'cirurgia' %}selected{% endif %}>Em Cirurgia</option>
             <option value="higienizacao" {% if sala.status == 'higienizacao' %}selected{% endif %}>Em Higienização</option>
           </select>

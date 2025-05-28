@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Leito, SalaCirurgica
+from .models import Leito, SalaCirurgica, ConfiguracaoSala
+
+
+@admin.register(ConfiguracaoSala)
+class ConfiguracaoSalaAdmin(admin.ModelAdmin):
+    list_display = ('sala', 'horas_warning', 'horas_danger')
+
 
 @admin.register(Leito)
 class LeitoAdmin(admin.ModelAdmin):

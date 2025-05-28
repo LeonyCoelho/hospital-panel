@@ -18,17 +18,17 @@
           const card = document.createElement('div');
           card.className = 'col-md-3';
 
-          let bgClass = 'bg-success-subtle text-dark'; // padrão
+          let bgClass = ''; // padrão
 
           if (sala.status === 'cirurgia') {
-            bgClass = 'bg-danger-subtle text-dark';
+            bgClass = 'text-bg-danger';
           } else if (sala.status === 'higienizacao') {
-            bgClass = 'bg-warning-subtle text-dark';
-          } else if (sala.status === 'vazia') {
-            bgClass = 'bg-light text-dark';
+            bgClass = 'text-bg-warning';
+          } else if (sala.status === 'disponivel') {
+            bgClass = 'text-bg-success';
           }
 
-          if (sala.status === 'vazia' || sala.status === 'higienizacao') {
+          if (sala.status === 'disponivel' || sala.status === 'higienizacao') {
             // Card para vazio ou higienização
             card.innerHTML = `
               <div class="card ${bgClass} text-center mb-4" style="height: 400px;">

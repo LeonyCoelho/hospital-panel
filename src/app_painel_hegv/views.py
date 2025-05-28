@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from .models import Leito, SalaCirurgica
+from .models import Leito, SalaCirurgica, ConfiguracaoSala
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
@@ -175,31 +175,69 @@ def editar_sala_cc(request, nome):
 
     return render(request, 'editar-sala.html', {'sala': sala})
 
+@login_required(login_url='/login/')
+def config_salas(request):
+    salas = Leito.SALAS
+
+    if request.method == 'POST':
+        for sigla, nome in salas:
+            horas_warning = request.POST.get(f'warning_{sigla}')
+            horas_danger = request.POST.get(f'danger_{sigla}')
+
+            config, _ = ConfiguracaoSala.objects.get_or_create(sala=sigla)
+            config.horas_warning = int(horas_warning) if horas_warning else 24
+            config.horas_danger = int(horas_danger) if horas_danger else 48
+            config.save()
+
+        return redirect('config_salas')
+
+    configs = {c.sala: c for c in ConfiguracaoSala.objects.all()}
+
+    context = {
+        'salas': salas,
+        'configs': configs,
+    }
+    return render(request, 'config-salas.html', context)
+
 
 
 
 # GET API =======================================
 @require_GET
 def get_all_leitos(request, sala_nome):
-    # Converte o nome recebido pra caixa alta (pra evitar erro de digitação)
-    sala_nome = sala_nome.upper()
+    # Mapeia o nome da sala para a sigla
+    SALAS_MAP = {v: k for k, v in Leito.SALAS}
+    sala_sigla = SALAS_MAP.get(sala_nome)
 
-    # Filtrar leitos que pertencem à sala informada (comparando o nome de exibição)
-    leitos = Leito.objects.all()
-    leitos_filtrados = [leito for leito in leitos if leito.get_sala_display().upper() == sala_nome]
+    if not sala_sigla:
+        return JsonResponse({'error': 'Sala inválida'}, status=400)
+
+    leitos = Leito.objects.filter(sala=sala_sigla).order_by('numero')
+
+    # Busca configuração da sala, se não tiver usa padrão
+    config = ConfiguracaoSala.objects.filter(sala=sala_sigla).first()
+
+    config_data = {
+        'horas_warning': config.horas_warning if config else 24,
+        'horas_danger': config.horas_danger if config else 48,
+    }
 
     leitos_list = [{
         "id": leito.id,
         "numero": leito.numero,
         "paciente": leito.paciente,
         "boletim": leito.boletim,
-        "internacao": leito.internacao,
-        "alta": leito.alta,
+        "internacao": leito.internacao.strftime('%Y-%m-%dT%H:%M:%S') if leito.internacao else None,
+        "alta": leito.alta.strftime('%Y-%m-%dT%H:%M:%S') if leito.alta else None,
         "sala": leito.get_sala_display(),
         "procedimento": leito.procedimento,
-    } for leito in leitos_filtrados]
+    } for leito in leitos]
 
-    return JsonResponse({'leitos': leitos_list})
+    return JsonResponse({
+        'leitos': leitos_list,
+        'config': config_data,
+    })
+
 
 
 def get_leito(request, id):
